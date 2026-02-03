@@ -1,4 +1,4 @@
--- Terminal management for neovim-cursor plugin
+-- Terminal management for neovim-agents plugin
 --
 -- This module handles the low-level terminal operations:
 -- - Creating terminal buffers and windows
@@ -186,14 +186,14 @@ local function create_terminal_instance(id, config, agent_type)
   })
 
   -- Set up buffer-local keymaps for terminal mode
-  vim.api.nvim_buf_set_keymap(term.buf, 't', '<Esc>', '<C-\\><C-n>:lua require("neovim-cursor.terminal").hide()<CR>', {
+  vim.api.nvim_buf_set_keymap(term.buf, 't', '<Esc>', '<C-\\><C-n>:lua require("neovim-agents.terminal").hide()<CR>', {
     noremap = true,
     silent = true,
     desc = "Exit terminal window"
   })
 
   -- Set up buffer-local keymap for normal mode in terminal
-  vim.api.nvim_buf_set_keymap(term.buf, 'n', '<Esc>', ':lua require("neovim-cursor.terminal").hide()<CR>', {
+  vim.api.nvim_buf_set_keymap(term.buf, 'n', '<Esc>', ':lua require("neovim-agents.terminal").hide()<CR>', {
     noremap = true,
     silent = true,
     desc = "Hide terminal window"
@@ -201,21 +201,21 @@ local function create_terminal_instance(id, config, agent_type)
 
   -- Set up buffer-local keymap for creating new terminal from terminal mode
   -- First hide current terminal, then create new one
-  vim.api.nvim_buf_set_keymap(term.buf, 't', '<C-n>', '<C-\\><C-n>:lua require("neovim-cursor").new_terminal_from_terminal_handler()<CR>', {
+  vim.api.nvim_buf_set_keymap(term.buf, 't', '<C-n>', '<C-\\><C-n>:lua require("neovim-agents").new_terminal_from_terminal_handler()<CR>', {
     noremap = true,
     silent = true,
     desc = "Create new agent terminal (hide current first)"
   })
 
   -- Set up buffer-local keymap for renaming current terminal from terminal mode
-  vim.api.nvim_buf_set_keymap(term.buf, 't', '<C-r>', '<C-\\><C-n>:lua require("neovim-cursor").rename_terminal_handler()<CR>', {
+  vim.api.nvim_buf_set_keymap(term.buf, 't', '<C-r>', '<C-\\><C-n>:lua require("neovim-agents").rename_terminal_handler()<CR>', {
     noremap = true,
     silent = true,
     desc = "Rename current agent window"
   })
 
   -- Set up buffer-local keymap for selecting terminal from terminal mode
-  vim.api.nvim_buf_set_keymap(term.buf, 't', '<C-t>', '<C-\\><C-n>:lua require("neovim-cursor").select_terminal_handler()<CR>', {
+  vim.api.nvim_buf_set_keymap(term.buf, 't', '<C-t>', '<C-\\><C-n>:lua require("neovim-agents").select_terminal_handler()<CR>', {
     noremap = true,
     silent = true,
     desc = "Select agent terminal"

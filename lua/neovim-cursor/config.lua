@@ -1,4 +1,4 @@
--- Default configuration for neovim-cursor plugin
+-- Default configuration for neovim-agents plugin
 local M = {}
 
 M.defaults = {

@@ -1,4 +1,4 @@
-# neovim-cursor
+# neovim-agents
 
 **BIG DISCLAIMER**: This is not a _real_ plugin in the `neovim` sense of a plugin. It's just a way to integrate AI agent CLIs into the `neovim` editor. So whenever you read that it's a "plugin", just read it as "terminal integration" (or something like that).
 
@@ -37,9 +37,9 @@ This was created using cursor 😊 in 20 minutes, it doesn't have to be perfect,
 
 ```lua
 {
-  "felixcuello/neovim-cursor",
+  "felixcuello/neovim-agents",
   config = function()
-    require("neovim-cursor").setup()
+    require("neovim-agents").setup()
   end,
 }
 ```
@@ -48,9 +48,9 @@ This was created using cursor 😊 in 20 minutes, it doesn't have to be perfect,
 
 ```lua
 use {
-  "felixcuello/neovim-cursor",
+  "felixcuello/neovim-agents",
   config = function()
-    require("neovim-cursor").setup()
+    require("neovim-agents").setup()
   end,
 }
 ```
@@ -58,10 +58,10 @@ use {
 ### Using [vim-plug](https://github.com/junegunn/vim-plug)
 
 ```vim
-Plug 'felixcuello/neovim-cursor'
+Plug 'felixcuello/neovim-agents'
 
 lua << EOF
-require("neovim-cursor").setup()
+require("neovim-agents").setup()
 EOF
 ```
 
@@ -157,7 +157,7 @@ The plugin provides comprehensive commands for all operations:
 ### Default Configuration
 
 ```lua
-require("neovim-cursor").setup({
+require("neovim-agents").setup({
   -- Multi-terminal keybindings (all configurable)
   keybindings = {
     toggle = "<leader>ai",      -- Toggle agent window (show last active)
@@ -207,7 +207,7 @@ require("neovim-cursor").setup({
 #### Configure Multiple AI Agents
 
 ```lua
-require("neovim-cursor").setup({
+require("neovim-agents").setup({
   agents = {
     cursor = { command = "cursor agent" },
     claude = { command = "claude --interactive" },
@@ -221,7 +221,7 @@ require("neovim-cursor").setup({
 #### Single Agent Setup (Backward Compatible)
 
 ```lua
-require("neovim-cursor").setup({
+require("neovim-agents").setup({
   command = "cursor agent",  -- Old style - still works!
 })
 -- This automatically creates a single "cursor" agent
@@ -230,7 +230,7 @@ require("neovim-cursor").setup({
 #### Custom Keybindings
 
 ```lua
-require("neovim-cursor").setup({
+require("neovim-agents").setup({
   keybindings = {
     toggle = "<C-a>",       -- Use Ctrl+a for toggle
     new = "<C-n>",          -- Use Ctrl+n for new terminal
@@ -243,7 +243,7 @@ require("neovim-cursor").setup({
 #### Custom Terminal Names
 
 ```lua
-require("neovim-cursor").setup({
+require("neovim-agents").setup({
   terminal = {
     default_name = "AI Assistant",  -- Custom prefix
     auto_number = true,              -- "AI Assistant 1", "AI Assistant 2", etc.
@@ -254,7 +254,7 @@ require("neovim-cursor").setup({
 #### Left Split with 40% Width
 
 ```lua
-require("neovim-cursor").setup({
+require("neovim-agents").setup({
   split = {
     position = "left",
     size = 0.4,
@@ -265,7 +265,7 @@ require("neovim-cursor").setup({
 #### Custom Agent Commands with Arguments
 
 ```lua
-require("neovim-cursor").setup({
+require("neovim-agents").setup({
   agents = {
     cursor = { command = "cursor agent" },
     claude_sonnet = { command = "claude --model sonnet" },
@@ -281,7 +281,7 @@ require("neovim-cursor").setup({
 The old `keybinding` and `command` options are still supported:
 
 ```lua
-require("neovim-cursor").setup({
+require("neovim-agents").setup({
   keybinding = "<leader>ai",  -- Still works, sets the toggle keybinding
   command = "cursor agent",   -- Still works, creates single cursor agent
 })
@@ -319,7 +319,7 @@ Each terminal remembers its agent type:
 You can access the terminal functions directly:
 
 ```lua
-local cursor = require("neovim-cursor")
+local cursor = require("neovim-agents")
 
 -- Access plugin version
 print("Version: " .. cursor.version)
@@ -353,7 +353,7 @@ print(vim.inspect(state))
 ### Multi-Terminal API
 
 ```lua
-local tabs = require("neovim-cursor.tabs")
+local tabs = require("neovim-agents.tabs")
 
 -- Get active terminal ID
 local active_id = tabs.get_active()
@@ -410,12 +410,12 @@ Without Telescope, the plugin falls back to `vim.ui.select` (still functional, j
 - Ensure the AI agent CLI is installed and in your PATH
 - Try running the command manually in your terminal to verify it works (e.g., `cursor agent`, `claude`)
 - Check for errors with `:messages`
-- Verify your agent configuration: `:lua print(vim.inspect(require('neovim-cursor.config').defaults.agents))`
+- Verify your agent configuration: `:lua print(vim.inspect(require('neovim-agents.config').defaults.agents))`
 
 ### Agent picker doesn't show my agents
 
 - Check your setup configuration has the `agents` table defined
-- Verify commands are correct: `:lua print(vim.inspect(require('neovim-cursor').tabs.get_state()))`
+- Verify commands are correct: `:lua print(vim.inspect(require('neovim-agents').tabs.get_state()))`
 
 ### Keybinding doesn't work
 

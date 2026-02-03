@@ -1,4 +1,4 @@
--- Multi-terminal state management for neovim-cursor plugin
+-- Multi-terminal state management for neovim-agents plugin
 --
 -- This module manages the metadata for multiple agent terminals, providing:
 -- - Terminal creation and deletion
@@ -11,7 +11,7 @@
 -- - The actual terminal buffers/windows are managed by terminal.lua
 -- - Cleanup callbacks ensure state stays synchronized when terminals exit
 --
-local terminal = require("neovim-cursor.terminal")
+local terminal = require("neovim-agents.terminal")
 
 local M = {}
 

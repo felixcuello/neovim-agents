@@ -1,4 +1,4 @@
--- Main module for neovim-cursor plugin
+-- Main module for neovim-agents plugin
 --
 -- This is the entry point for the plugin, providing:
 -- - Plugin setup and configuration
@@ -13,10 +13,10 @@
 -- - select_terminal_handler(): Open fuzzy picker to select agent
 -- - rename_terminal_handler(): Rename active agent
 --
-local config_module = require("neovim-cursor.config")
-local terminal = require("neovim-cursor.terminal")
-local tabs = require("neovim-cursor.tabs")
-local picker = require("neovim-cursor.picker")
+local config_module = require("neovim-agents.config")
+local terminal = require("neovim-agents.terminal")
+local tabs = require("neovim-agents.tabs")
+local picker = require("neovim-agents.picker")
 
 local M = {}
 local config = {}
@@ -335,9 +335,9 @@ function M.setup(user_config)
 
   -- Create command to display version
   vim.api.nvim_create_user_command("CursorAgentVersion", function()
-    vim.notify("neovim-cursor v" .. M.version, vim.log.levels.INFO)
+    vim.notify("neovim-agents v" .. M.version, vim.log.levels.INFO)
   end, {
-    desc = "Display neovim-cursor plugin version",
+    desc = "Display neovim-agents plugin version",
   })
 end
 
