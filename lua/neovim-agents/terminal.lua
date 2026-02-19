@@ -221,9 +221,6 @@ local function create_terminal_instance(id, config, agent_type)
     desc = "Select agent terminal"
   })
 
-  -- Enter insert mode in terminal
-  vim.cmd("startinsert")
-
   -- Set this as the active terminal
   active_id = id
 
@@ -231,6 +228,11 @@ local function create_terminal_instance(id, config, agent_type)
   if config.term_opts.on_open then
     config.term_opts.on_open()
   end
+
+  -- Enter insert mode in terminal (schedule to ensure window is ready)
+  vim.schedule(function()
+    vim.cmd("startinsert")
+  end)
 
   return term
 end
@@ -250,7 +252,9 @@ function M.toggle(config, id, agent_type)
   elseif is_buffer_valid(id) and M.is_running(id) then
     -- Terminal exists but is hidden, show it
     show(id, config)
-    vim.cmd("startinsert")
+    vim.schedule(function()
+      vim.cmd("startinsert")
+    end)
   else
     -- Terminal doesn't exist or isn't running, create it
     create_terminal_instance(id, config, agent_type)
