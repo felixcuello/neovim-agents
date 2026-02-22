@@ -2,7 +2,7 @@
 local M = {}
 
 M.defaults = {
-  -- Keybinding for toggling cursor agent (backward compatibility)
+  -- Keybinding for toggling agent (backward compatibility)
   keybinding = "<leader>ai",
 
   -- Multi-terminal keybindings
@@ -26,11 +26,11 @@ M.defaults = {
   },
 
   -- CLI command to run (backward compatibility - will be converted to agents table)
-  command = "cursor agent",
+  command = "cursor-agent",
 
   -- Multi-agent configuration
   agents = {
-    cursor = { command = "cursor agent" },
+    cursor = { command = "cursor-agent" },
     claude = { command = "claude" },
     gemini = { command = "gemini chat" },
   },
