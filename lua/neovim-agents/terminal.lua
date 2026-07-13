@@ -5,7 +5,7 @@
 -- - Managing terminal visibility (show/hide)
 -- - Sending text to terminal buffers
 -- - Terminal lifecycle (on_exit callbacks)
--- - Terminal mode keybindings (<Esc>, <C-n>, <C-t>, <C-r>)
+-- - Terminal mode keybindings (<C-_>, <C-n>, <C-t>, <C-r>)
 --
 -- Architecture:
 -- - Stores terminal instances with buffers, windows, and job IDs
@@ -185,18 +185,17 @@ local function create_terminal_instance(id, config, agent_type)
     end,
   })
 
-  -- Set up buffer-local keymaps for terminal mode
-  vim.api.nvim_buf_set_keymap(term.buf, 't', '<Esc>', '<C-\\><C-n>:lua require("neovim-agents.terminal").hide()<CR>', {
+  -- Toggle with <C-_> (Ctrl+/) so <Esc> reaches agent CLIs (Cursor/Claude use Esc in their UI)
+  vim.api.nvim_buf_set_keymap(term.buf, 't', '<C-_>', '<C-\\><C-n>:lua require("neovim-agents").normal_mode_handler()<CR>', {
     noremap = true,
     silent = true,
-    desc = "Exit terminal window"
+    desc = "Toggle AI agent window"
   })
 
-  -- Set up buffer-local keymap for normal mode in terminal
-  vim.api.nvim_buf_set_keymap(term.buf, 'n', '<Esc>', ':lua require("neovim-agents.terminal").hide()<CR>', {
+  vim.api.nvim_buf_set_keymap(term.buf, 'n', '<C-_>', ':lua require("neovim-agents").normal_mode_handler()<CR>', {
     noremap = true,
     silent = true,
-    desc = "Hide terminal window"
+    desc = "Toggle AI agent window"
   })
 
   -- Set up buffer-local keymap for creating new terminal from terminal mode
