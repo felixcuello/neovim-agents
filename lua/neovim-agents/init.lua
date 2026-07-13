@@ -23,7 +23,7 @@ local config = {}
 
 -- Plugin version (Semantic Versioning: MAJOR.MINOR.PATCH)
 -- v1.0.0: Multi-terminal support with fuzzy picker, live preview, and full configurability
-M.version = "1.0.0"
+M.version = "1.1.0"
 
 -- Normal mode handler: smart toggle (create first terminal or show last active)
 function M.normal_mode_handler()
