@@ -9,7 +9,7 @@ This was created using cursor 😊 in 20 minutes, it doesn't have to be perfect,
 
 ## Features
 
-- 🚀 Toggle a vertical split terminal running AI agent CLIs with `<leader>ai`
+- 🚀 Toggle a vertical split terminal running AI agent CLIs with `Ctrl+/` (`<C-_>` in Neovim)
 - 🤖 **Multi-agent support** - Use Cursor, Claude, Gemini, or any AI CLI
 - 🎛️ **Manage multiple AI agent sessions simultaneously**
 - 🔍 **Fuzzy finder with live preview** (Telescope integration)
@@ -69,7 +69,7 @@ EOF
 
 ### Quick Start
 
-1. **Open/Toggle Agent**: Press `<leader>ai` in normal mode
+1. **Open/Toggle Agent**: Press `Ctrl+/` in normal mode
    - First time: Select an agent type (cursor/claude/gemini), then creates your first agent terminal
    - After that: Toggles (show/hide) the last active agent
 2. **Create New Agent**: Press `<leader>an` to select agent type and create additional agent terminals
@@ -84,7 +84,7 @@ Work with multiple AI agents simultaneously for different tasks:
 
 | Keybinding | Action |
 |------------|--------|
-| `<leader>ai` | Smart toggle - create first agent or show last active |
+| `Ctrl+/` (`<C-_>`) | Smart toggle - create first agent or show/hide last active |
 | `<leader>an` | Create new agent terminal with custom prompt |
 | `<leader>at` | Select agent from fuzzy picker (with live preview) |
 | `<leader>ar` | Rename current agent terminal |
@@ -95,15 +95,17 @@ When you're inside an agent terminal, you can manage agents without leaving:
 
 | Keybinding | Action |
 |------------|--------|
-| `<Esc>` | Exit terminal mode / hide agent window |
+| `Ctrl+/` (`<C-_>`) | Toggle agent window (Esc is left for the agent CLI) |
 | `<C-n>` | Create new agent terminal |
 | `<C-t>` | Select agent from fuzzy picker |
 | `<C-r>` | Rename current agent terminal |
 
+> **Note:** Terminals send Ctrl+/ as keycode 31, which Neovim maps as `<C-_>` (not `<C-/>`). That is why the config uses `"<C-_>"`.
+
 #### Example Workflow
 
 ```
-1. Press <leader>ai → Agent picker appears → Select "cursor"
+1. Press Ctrl+/ → Agent picker appears → Select "cursor"
 2. Ask: "Help me debug this authentication issue"
 3. Press <C-n> → Agent picker appears → Select "claude"
 4. Type: "Review my database schema"
@@ -120,7 +122,7 @@ When you're inside an agent terminal, you can manage agents without leaving:
 Send code selections to your active agent:
 
 1. Select text in visual mode (v, V, or Ctrl-v)
-2. Press `<leader>ai`
+2. Press `Ctrl+/`
 3. The plugin will:
    - Toggle the agent terminal (show it)
    - Send the file path with line range (e.g., `@file.lua:10-20`)
@@ -160,7 +162,7 @@ The plugin provides comprehensive commands for all operations:
 require("neovim-agents").setup({
   -- Multi-terminal keybindings (all configurable)
   keybindings = {
-    toggle = "<leader>ai",      -- Toggle agent window (show last active)
+    toggle = "<C-_>",            -- Ctrl+/ (terminals send this as <C-_>, not <C-/>)
     new = "<leader>an",          -- Create new agent terminal
     select = "<leader>at",       -- Select agent terminal (fuzzy picker)
     rename = "<leader>ar",       -- Rename current agent terminal
@@ -282,7 +284,7 @@ The old `keybinding` and `command` options are still supported:
 
 ```lua
 require("neovim-agents").setup({
-  keybinding = "<leader>ai",  -- Still works, sets the toggle keybinding
+  keybinding = "<C-_>",  -- Still works, sets the toggle keybinding
   command = "cursor agent",   -- Still works, creates single cursor agent
 })
 ```
@@ -291,7 +293,7 @@ require("neovim-agents").setup({
 
 ### Agent Selection Flow
 
-When you create a new terminal (`<leader>an` or first time with `<leader>ai`):
+When you create a new terminal (`<leader>an` or first time with `Ctrl+/`):
 1. A picker appears showing all configured agents
 2. The default agent is pre-selected at the top
 3. Select an agent (cursor, claude, gemini, etc.)
@@ -420,11 +422,11 @@ Without Telescope, the plugin falls back to `vim.ui.select` (still functional, j
 ### Keybinding doesn't work
 
 - Make sure `<leader>` is set in your config (e.g., `vim.g.mapleader = " "`)
-- Check for conflicting keybindings with `:verbose map <leader>ai`
+- Check for conflicting keybindings with `:verbose map <C-_>`
 
 ### Visual selection not working
 
-- Ensure you're pressing `<leader>ai` while still in visual mode
+- Ensure you're pressing `Ctrl+/` while still in visual mode
 - The selection will be sent after the terminal opens/shows
 
 ## Contributing

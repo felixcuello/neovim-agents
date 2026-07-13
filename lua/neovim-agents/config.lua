@@ -3,11 +3,12 @@ local M = {}
 
 M.defaults = {
   -- Keybinding for toggling agent (backward compatibility)
-  keybinding = "<leader>ai",
+  -- <C-_> is Ctrl+/ in terminals (getchar() returns 31); <C-/> alone does not fire
+  keybinding = "<C-_>",
 
   -- Multi-terminal keybindings
   keybindings = {
-    toggle = "<leader>ai",      -- Toggle agent window (show last active)
+    toggle = "<C-_>",            -- Toggle agent window (Ctrl+/ / <C-_>)
     new = "<leader>an",          -- Create new agent terminal
     select = "<leader>at",       -- Select agent terminal (fuzzy picker)
     rename = "<leader>ar",       -- Rename current agent terminal

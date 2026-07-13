@@ -207,7 +207,7 @@ function M.setup(user_config)
 
   -- Support backward compatibility: if keybindings table not provided, use old keybinding
   local keybindings = config.keybindings or {
-    toggle = config.keybinding or "<leader>ai",
+    toggle = config.keybinding or "<C-_>",
     new = "<leader>an",
     select = "<leader>at",
     rename = "<leader>ar",
