@@ -8,7 +8,7 @@
 --
 -- Key handlers:
 -- - normal_mode_handler(): Smart toggle (create first terminal or show last active)
--- - visual_mode_handler(): Send visual selection to active agent
+-- - visual_mode_handler(): Show agent and send @filepath:start-end from visual selection
 -- - new_terminal_handler(): Create new agent terminal with prompt
 -- - select_terminal_handler(): Open fuzzy picker to select agent
 -- - rename_terminal_handler(): Rename active agent
@@ -155,49 +155,66 @@ function M.list_terminals_handler()
   vim.notify(table.concat(lines, "\n"), vim.log.levels.INFO)
 end
 
--- Visual mode handler: toggle terminal and send selection
-function M.visual_mode_handler()
-  -- Get the current buffer and file path
-  local buf = vim.api.nvim_get_current_buf()
-  local filepath = vim.api.nvim_buf_get_name(buf)
+-- Retry sending text until the agent CLI is ready (or give up after ~1s)
+local SEND_RETRY_ATTEMPTS = 20
+local SEND_RETRY_MS = 50
 
-  -- Get visual selection line range
-  local start_pos = vim.fn.getpos("'<")
-  local end_pos = vim.fn.getpos("'>")
-  local start_line = start_pos[2]
-  local end_line = end_pos[2]
-
-  -- Ensure at least one terminal exists
-  if not tabs.has_terminals() then
-    -- Create terminal with default agent, then send text after it's ready
-    picker.pick_agent(config, function(agent_type)
-      tabs.create_terminal(nil, config, agent_type)
-      -- Wait for terminal to be ready, then send text
-      vim.defer_fn(function()
-        local active_id = tabs.get_active()
-        if active_id and terminal.is_running(active_id) then
-          local text_to_send = "@" .. filepath .. ":" .. start_line .. "-" .. end_line
-          terminal.send_text(text_to_send, active_id)
-        end
-      end, 100)
-    end)
-  else
-    -- Toggle the last active terminal
-    local last_id = tabs.get_last()
-    if last_id then
-      terminal.toggle(config, last_id)
-    end
-    
-    -- Wait a bit for terminal to be ready, then send text
-    vim.defer_fn(function()
-      local active_id = tabs.get_active()
-      if active_id and terminal.is_running(active_id) then
-        -- Send the filepath with @ prefix and line range (no content needed)
-        local text_to_send = "@" .. filepath .. ":" .. start_line .. "-" .. end_line
-        terminal.send_text(text_to_send, active_id)
-      end
-    end, 100)  -- 100ms delay to ensure terminal is ready
+local function send_when_ready(text, id, attempt)
+  attempt = attempt or 0
+  if id and terminal.is_running(id) then
+    terminal.send_text(text, id)
+    return
   end
+  if attempt >= SEND_RETRY_ATTEMPTS then
+    vim.notify("AI agent terminal is not running", vim.log.levels.WARN)
+    return
+  end
+  vim.defer_fn(function()
+    send_when_ready(text, id, attempt + 1)
+  end, SEND_RETRY_MS)
+end
+
+-- Visual mode handler: show terminal and send @filepath:start-end
+-- Must be called while still in visual mode so line("v") / line(".") are valid.
+function M.visual_mode_handler()
+  local filepath = vim.api.nvim_buf_get_name(0)
+  local start_line = vim.fn.line("v")
+  local end_line = vim.fn.line(".")
+  if start_line > end_line then
+    start_line, end_line = end_line, start_line
+  end
+
+  local esc = vim.api.nvim_replace_termcodes("<Esc>", true, false, true)
+  vim.api.nvim_feedkeys(esc, "x", false)
+
+  vim.schedule(function()
+    local text_to_send = nil
+    if filepath == "" then
+      vim.notify("Cannot send selection: buffer has no file name", vim.log.levels.WARN)
+    else
+      text_to_send = "@" .. filepath .. ":" .. start_line .. "-" .. end_line
+    end
+
+    local function send_if_needed(id)
+      if text_to_send then
+        send_when_ready(text_to_send, id)
+      end
+    end
+
+    if not tabs.has_terminals() then
+      picker.pick_agent(config, function(agent_type)
+        local id = tabs.create_terminal(nil, config, agent_type)
+        send_if_needed(id)
+      end)
+    else
+      local last_id = tabs.get_last()
+      if last_id then
+        local term_meta = tabs.get_terminal(last_id)
+        terminal.ensure_visible(config, last_id, term_meta and term_meta.agent_type)
+      end
+      send_if_needed(last_id or tabs.get_active())
+    end
+  end)
 end
 
 -- Setup function to initialize the plugin
@@ -219,13 +236,7 @@ function M.setup(user_config)
     silent = true,
   })
 
-  vim.keymap.set("v", keybindings.toggle, function()
-    -- Exit visual mode before processing
-    local esc = vim.api.nvim_replace_termcodes("<Esc>", true, false, true)
-    vim.api.nvim_feedkeys(esc, "x", false)
-    -- Call handler after exiting visual mode
-    vim.schedule(M.visual_mode_handler)
-  end, {
+  vim.keymap.set("v", keybindings.toggle, M.visual_mode_handler, {
     desc = "Toggle AI Agent terminal and send selection",
     silent = true,
   })

@@ -260,6 +260,26 @@ function M.toggle(config, id, agent_type)
   end
 end
 
+-- Show the terminal if hidden; create it if missing. Never hides a visible terminal.
+function M.ensure_visible(config, id, agent_type)
+  id = id or active_id or default_id
+
+  if is_visible(id) then
+    return true
+  elseif is_buffer_valid(id) and M.is_running(id) then
+    local ok = show(id, config)
+    if ok then
+      vim.schedule(function()
+        vim.cmd("startinsert")
+      end)
+    end
+    return ok
+  else
+    create_terminal_instance(id, config, agent_type)
+    return true
+  end
+end
+
 -- Send text to the terminal
 function M.send_text(text, id)
   id = id or active_id or default_id
