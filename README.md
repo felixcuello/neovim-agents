@@ -181,6 +181,7 @@ require("neovim-agents").setup({
   },
 
   -- Multi-agent configuration
+  -- Providing `agents` replaces the default set (it does not merge).
   agents = {
     cursor = { command = "cursor agent" },
     claude = { command = "claude" },

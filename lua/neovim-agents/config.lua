@@ -67,7 +67,12 @@ function M.setup(user_config)
   end
   
   local config = vim.tbl_deep_extend("force", M.defaults, user_config)
-  
+
+  -- User-provided agents replace the default list rather than merging with it
+  if user_config.agents then
+    config.agents = user_config.agents
+  end
+
   -- Ensure default_agent is valid
   if config.default_agent and not config.agents[config.default_agent] then
     -- Default agent doesn't exist, use first available agent
