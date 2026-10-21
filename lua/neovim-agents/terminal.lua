@@ -20,11 +20,26 @@ local terminals = {}  -- Table of terminal instances keyed by ID (stores buf, wi
 local active_id = nil  -- Currently active terminal ID
 local default_id = "default"  -- Default terminal ID for backward compatibility
 local cleanup_callbacks = {}  -- Callbacks to call when a terminal exits (used by tabs.lua for state sync)
+local session_ratio = nil  -- Last manual split size as a fraction of the editor, shared by all terminals
 
 -- Get a terminal instance by ID (defaults to active or default terminal)
 local function get_terminal(id)
   id = id or active_id or default_id
   return terminals[id]
+end
+
+local function is_vertical(position)
+  return position == "right" or position == "left"
+end
+
+-- Store the current window size as a fraction of the editor width/height
+local function remember_size(term)
+  if not (term and term.win and vim.api.nvim_win_is_valid(term.win)) then return end
+  if is_vertical(term.position) then
+    session_ratio = vim.api.nvim_win_get_width(term.win) / vim.o.columns
+  else
+    session_ratio = vim.api.nvim_win_get_height(term.win) / vim.o.lines
+  end
 end
 
 -- Check if terminal is currently visible
@@ -63,6 +78,7 @@ local function hide(id)
   if is_visible(id) then
     local term = get_terminal(id)
     if term then
+      remember_size(term)
       vim.api.nvim_win_hide(term.win)
       term.win = nil
     end
@@ -86,12 +102,15 @@ local function show(id, config)
     return false
   end
 
-  -- Calculate split size
+  term.position = config.split.position
+
+  -- Calculate split size (reuse the size set manually earlier in this session, if any)
+  local ratio = session_ratio or config.split.size
   local size
-  if config.split.position == "right" or config.split.position == "left" then
-    size = math.floor(vim.o.columns * config.split.size)
+  if is_vertical(term.position) then
+    size = math.max(1, math.floor(vim.o.columns * ratio))
   else
-    size = math.floor(vim.o.lines * config.split.size)
+    size = math.max(1, math.floor(vim.o.lines * ratio))
   end
 
   -- Create the split
@@ -111,7 +130,7 @@ local function show(id, config)
   vim.api.nvim_win_set_buf(term.win, term.buf)
 
   -- Set window size
-  if config.split.position == "right" or config.split.position == "left" then
+  if is_vertical(term.position) then
     vim.api.nvim_win_set_width(term.win, size)
   else
     vim.api.nvim_win_set_height(term.win, size)
@@ -331,6 +350,25 @@ end
 -- @param callback function(id, exit_code)
 function M.register_cleanup_callback(callback)
   table.insert(cleanup_callbacks, callback)
+end
+
+-- Track manual resizes (mouse, <C-w>>, :vertical resize) so the size survives closing with :q.
+-- WinResized only exists in Neovim 0.9+; on 0.8 the size is still saved by hide().
+if vim.fn.exists("##WinResized") == 1 then
+  vim.api.nvim_create_autocmd("WinResized", {
+    group = vim.api.nvim_create_augroup("NeovimAgentsSize", { clear = true }),
+    callback = function()
+      local resized = {}
+      for _, win in ipairs(vim.v.event.windows or {}) do
+        resized[win] = true
+      end
+      for _, term in pairs(terminals) do
+        if term.win and resized[term.win] then
+          remember_size(term)
+        end
+      end
+    end,
+  })
 end
 
 -- Expose internal functions for tabs module (Phase 1.4+)
