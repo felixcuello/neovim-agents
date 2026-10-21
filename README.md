@@ -175,6 +175,8 @@ require("neovim-agents").setup({
   },
 
   -- Terminal split configuration
+  -- `size` is the initial size; if you resize the agent window manually, that
+  -- size (as a proportion of the editor) is reused for the rest of the session.
   split = {
     position = "right",  -- "right", "left", "top", "bottom"
     size = 0.5,          -- 50% of editor width/height (0.0-1.0)
